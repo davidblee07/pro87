@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import DropDownPicker from "react-native-dropdown-picker";
+import firebase from "firebase";
 
 export default class CreatePost extends Component {
   constructor() {
@@ -22,6 +23,17 @@ export default class CreatePost extends Component {
     };
   }
 
+  fetchUser = () => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", (snapshot) => {
+        theme = snapshot.val().current_theme;
+        this.setState({ light_theme: theme === "light" });
+      });
+  };
+
   render() {
     let preview_images = {
       image_1: require("../assets/image_1.jpg"),
@@ -31,7 +43,11 @@ export default class CreatePost extends Component {
       image_5: require("../assets/image_5.jpg"),
     };
     return (
-      <View style={styles.container}>
+      <View
+        style={
+          this.state.light_theme ? styles.containerLight : styles.container
+        }
+      >
         <SafeAreaView style={styles.droidSafeArea} />
         <View style={styles.appTitle}>
           <View style={styles.appIcon}>
@@ -41,7 +57,15 @@ export default class CreatePost extends Component {
             ></Image>
           </View>
           <View style={styles.appTitleTextContainer}>
-            <Text style={styles.appTitleText}>New Post</Text>
+            <Text
+              style={
+                this.state.light_theme
+                  ? styles.appTitleTextLight
+                  : styles.appTitleText
+              }
+            >
+              Novo Post
+            </Text>
           </View>
         </View>
         <View style={styles.fieldsContainer}>
@@ -82,7 +106,11 @@ export default class CreatePost extends Component {
               />
             </View>
             <TextInput
-              style={styles.inputFont}
+              style={
+                this.state.light_theme
+                  ? styles.inputFontLight
+                  : styles.inputFont
+              }
               onChangeText={(caption) => this.setState({ caption })}
               placeholder={"legenda"}
               placeholderTextColor="white"
@@ -100,6 +128,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: "white",
   },
   droidSafeArea: {
     marginTop:
@@ -126,7 +158,10 @@ const styles = StyleSheet.create({
   appTitleText: {
     color: "white",
     fontSize: RFValue(28),
-    fontFamily: "Bubblegum-Sans",
+  },
+  appTitleTextLight: {
+    color: "black",
+    fontSize: RFValue(28),
   },
   fieldsContainer: {
     flex: 0.85,
@@ -147,6 +182,14 @@ const styles = StyleSheet.create({
     borderRadius: RFValue(10),
     paddingLeft: RFValue(10),
     color: "white",
-    fontFamily: "Bubblegum-Sans",
+  },
+  inputFontLight: {
+    height: RFValue(40),
+    marginTop: RFValue(40),
+    borderColor: "white",
+    borderWidth: RFValue(1),
+    borderRadius: RFValue(10),
+    paddingLeft: RFValue(10),
+    color: "black",
   },
 });
